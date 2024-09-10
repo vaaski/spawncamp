@@ -19,21 +19,21 @@ export class Spawncamp {
 			for (const node of mutation.addedNodes) {
 				if (node instanceof HTMLElement) {
 					for (const [selector, resolve] of this.awaitedElements) {
-						const element = node.querySelector<HTMLElement>(selector)
+						const matches = node.matches(selector)
 
-						if (element) {
-							resolve(element)
+						if (matches) {
+							resolve(node)
 							this.awaitedElements.delete(selector)
 						}
 					}
 
 					for (const [selector, resolve] of this.onArrival) {
-						const element = node.querySelector<HTMLElement>(selector)
-						const isSame = lastArrived && element?.isEqualNode(lastArrived)
+						const matches = node.matches(selector)
+						const isSame = lastArrived && node.isEqualNode(lastArrived)
 
-						if (element && !isSame) {
-							lastArrived = element
-							resolve(element)
+						if (matches && !isSame) {
+							lastArrived = node
+							resolve(node)
 						}
 					}
 				}
