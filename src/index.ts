@@ -5,8 +5,8 @@ export class Spawncamp {
 	private awaitedElements = new Map<Selector, Resolver>()
 	private onArrival = new Map<Selector, Resolver>()
 
-	constructor(root: Node = document) {
-		this.observer.observe(root, {
+	constructor(private root: HTMLElement | Document = document) {
+		this.observer.observe(this.root, {
 			childList: true,
 			subtree: true,
 		})
@@ -43,13 +43,13 @@ export class Spawncamp {
 
 	public stop = () => this.observer.disconnect()
 
-	/** Awaits an element to arrive in the DOM once */
+	/** Awaits an element to arrive in the DOM once or returns a matching existing element */
 	public once = <T = HTMLElement>(selector: Selector) => {
 		if (this.awaitedElements.has(selector)) {
 			return Promise.resolve(this.awaitedElements.get(selector) as T)
 		}
 
-		const element = document.querySelector(selector)
+		const element = this.root.querySelector(selector)
 		if (element) return Promise.resolve(element as T)
 
 		const promise = new Promise<T>((resolve) => {
