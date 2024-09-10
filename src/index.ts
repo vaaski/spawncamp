@@ -4,6 +4,10 @@ export type Resolver<T = HTMLElement> = (element: T) => void
 export class Spawncamp {
 	private awaitedElements = new Map<Selector, Resolver>()
 	private onArrival = new Map<Selector, Resolver>()
+	private _stopped = false
+	public get stopped() {
+		return this._stopped
+	}
 
 	constructor(private root: HTMLElement | Document = document) {
 		this.observer.observe(this.root, {
@@ -41,10 +45,15 @@ export class Spawncamp {
 		}
 	})
 
-	public stop = () => this.observer.disconnect()
+	public stop = () => {
+		this.observer.disconnect()
+		this._stopped = true
+	}
 
 	/** Awaits an element to arrive in the DOM once or returns a matching existing element */
 	public once = <T = HTMLElement>(selector: Selector) => {
+		if (this._stopped) return Promise.reject(new Error("Spawncamp is stopped"))
+
 		if (this.awaitedElements.has(selector)) {
 			return Promise.resolve(this.awaitedElements.get(selector) as T)
 		}
@@ -64,6 +73,8 @@ export class Spawncamp {
 		selector: Selector,
 		callback: Resolver<T>,
 	) => {
+		if (this._stopped) throw new Error("Spawncamp is stopped")
+
 		this.onArrival.set(selector, callback as Resolver<HTMLElement>)
 
 		return () => this.onArrival.delete(selector)
