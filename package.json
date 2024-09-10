@@ -1,6 +1,6 @@
 {
 	"name": "spawncamp",
-	"description": "A tiny library for userscripts to wait for elements to arrive in the DOM",
+	"description": "A tiny library for userscripts that waits for elements to arrive in the DOM",
 	"version": "0.0.1",
 	"type": "module",
 	"module": "index.ts",
