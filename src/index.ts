@@ -29,7 +29,7 @@ export class Spawncamp {
 
 					for (const [selector, resolve] of this.onArrival) {
 						const matches = node.matches(selector)
-						const isSame = lastArrived && node.isEqualNode(lastArrived)
+						const isSame = lastArrived && node === lastArrived
 
 						if (matches && !isSame) {
 							lastArrived = node
