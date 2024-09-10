@@ -59,7 +59,7 @@ export class Spawncamp {
 		return promise
 	}
 
-	/* Calls the callback every time an element matching the selector arrives in the DOM */
+	/** Calls the callback every time an element matching the selector arrives in the DOM */
 	public on = <T extends HTMLElement>(
 		selector: Selector,
 		callback: Resolver<T>,
