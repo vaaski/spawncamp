@@ -1,5 +1,5 @@
-import { beforeEach } from "bun:test"
 import { GlobalRegistrator } from "@happy-dom/global-registrator"
+import { beforeEach } from "bun:test"
 
 GlobalRegistrator.register()
 

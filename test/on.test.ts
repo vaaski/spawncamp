@@ -38,8 +38,8 @@ test("observe matching descendants and multiple callbacks", async () => {
 	const button = document.createElement("button")
 	const wrapper = document.createElement("div")
 	const arrivals: HTMLElement[] = []
-	camp.on("button", (element) => arrivals.push(element))
-	camp.on("button", (element) => arrivals.push(element))
+	camp.on("button", element => arrivals.push(element))
+	camp.on("button", element => arrivals.push(element))
 	const arrived = camp.once("button")
 	wrapper.appendChild(button)
 
