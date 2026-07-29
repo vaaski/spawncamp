@@ -14,34 +14,42 @@ export class Spawncamp {
 		return this._stopped
 	}
 
-	constructor(private root: HTMLElement | Document = document) {
+	constructor(private root: HTMLElement | Document = document, private options: MutationObserverInit = {}) {
 		this.observer.observe(this.root, {
 			childList: true,
 			subtree: true,
+			...this.options,
 		})
 	}
 
 	private observer = new MutationObserver((mutations) => {
+		const resolveMatches = (element: HTMLElement) => {
+			for (const [selector, awaiters] of this.awaitedElements) {
+				if (element.matches(selector)) {
+					for (const awaiter of awaiters) awaiter.resolve(element)
+					this.awaitedElements.delete(selector)
+				}
+			}
+
+			for (const [selector, callbacks] of this.onArrival) {
+				if (element.matches(selector)) {
+					for (const callback of callbacks) callback(element)
+				}
+			}
+		}
+
 		for (const mutation of mutations) {
+			if (mutation.type === "attributes" && mutation.target instanceof HTMLElement) {
+				resolveMatches(mutation.target)
+			}
+
 			for (const node of mutation.addedNodes) {
 				if (node instanceof Element) {
 					const arrivedElements = [node, ...node.querySelectorAll("*")]
 
 					for (const element of arrivedElements) {
 						if (!(element instanceof HTMLElement)) continue
-
-						for (const [selector, awaiters] of this.awaitedElements) {
-							if (element.matches(selector)) {
-								for (const awaiter of awaiters) awaiter.resolve(element)
-								this.awaitedElements.delete(selector)
-							}
-						}
-
-						for (const [selector, callbacks] of this.onArrival) {
-							if (element.matches(selector)) {
-								for (const callback of callbacks) callback(element)
-							}
-						}
+						resolveMatches(element)
 					}
 				}
 			}

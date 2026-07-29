@@ -48,3 +48,18 @@ test("observe matching descendants and multiple callbacks", async () => {
 
 	expect(arrivals).toEqual([button, button])
 })
+
+test("observe an element that matches after an attribute change", async (done) => {
+	const button = document.createElement("button")
+	button.className = "continue-button"
+	button.disabled = true
+	document.body.appendChild(button)
+	const camp = new Spawncamp(document, { attributes: true, subtree: true })
+
+	camp.on(".continue-button:not([disabled])", (element) => {
+		expect(element).toStrictEqual(button)
+		done()
+	})
+
+	button.disabled = false
+})

@@ -47,3 +47,16 @@ test("resolve concurrent waits for the same selector", async () => {
 
 	expect(await Promise.all([first, second])).toEqual([button, button])
 })
+
+test("await an element that matches after an attribute change", async () => {
+	const button = document.createElement("button")
+	button.className = "continue-button"
+	button.disabled = true
+	document.body.appendChild(button)
+	const camp = new Spawncamp(document, { attributes: true, subtree: true })
+
+	const foundButton = camp.once(".continue-button:not([disabled])")
+	button.disabled = false
+
+	expect(await foundButton).toStrictEqual(button)
+})
