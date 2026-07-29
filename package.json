@@ -20,7 +20,6 @@
 		"dist"
 	],
 	"scripts": {
-		"format": "biome format --write",
 		"lint": "eslint .",
 		"build": "bun run build.ts",
 		"prepublishOnly": "bun run build.ts",
