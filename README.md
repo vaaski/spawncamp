@@ -53,7 +53,3 @@ Build:
 ```bash
 bun run build.ts
 ```
-
-This project was created using `bun init` with bun v1.1.27.
-
-It uses [Biome](https://biomejs.dev) for formatting and linting.
