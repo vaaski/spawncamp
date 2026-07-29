@@ -104,7 +104,8 @@ export class Spawncamp {
 }
 
 /**
- * Convenience wrapper for `document.querySelectorAll`
+ * Convenience wrapper for `document.querySelectorAll`,
+ * returns as `Array` instead of `NodeList`
  *
  * @param selector any valid querySelector
  * @see `$t` for a auto-throw variant if the element can't be found
@@ -129,7 +130,8 @@ export function $(selector: string) {
 }
 
 /**
- * Convenience wrapper for `document.querySelectorAll` which throws when no elements are found
+ * Convenience wrapper for `document.querySelectorAll`,
+ * returns as `Array` instead of `NodeList` and throws when no elements are found
  *
  * It also guarantees that the first element in the array is defined on a type-level
  *
