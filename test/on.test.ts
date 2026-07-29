@@ -1,4 +1,4 @@
-import { test, expect } from "bun:test"
+import { expect, test } from "bun:test"
 import { Spawncamp } from "../src"
 
 test("await element multiple times", async (done) => {
@@ -31,4 +31,20 @@ test("remove .on() observer", () => {
 
 	const remove = camp.on("button", () => {})
 	expect(remove()).toBe(true)
+})
+
+test("observe matching descendants and multiple callbacks", async () => {
+	const camp = new Spawncamp()
+	const button = document.createElement("button")
+	const wrapper = document.createElement("div")
+	const arrivals: HTMLElement[] = []
+	camp.on("button", (element) => arrivals.push(element))
+	camp.on("button", (element) => arrivals.push(element))
+	const arrived = camp.once("button")
+	wrapper.appendChild(button)
+
+	document.body.appendChild(wrapper)
+	await arrived
+
+	expect(arrivals).toEqual([button, button])
 })

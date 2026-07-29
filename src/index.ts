@@ -1,9 +1,14 @@
 export type Selector = Parameters<typeof window.document.querySelector>[0]
 export type Resolver<T = HTMLElement> = (element: T) => void
 
+type Awaiter = {
+	resolve: Resolver
+	reject: (reason: Error) => void
+}
+
 export class Spawncamp {
-	private awaitedElements = new Map<Selector, Resolver>()
-	private onArrival = new Map<Selector, Resolver>()
+	private awaitedElements = new Map<Selector, Set<Awaiter>>()
+	private onArrival = new Map<Selector, Set<Resolver>>()
 	private _stopped = false
 	public get stopped() {
 		return this._stopped
@@ -17,27 +22,25 @@ export class Spawncamp {
 	}
 
 	private observer = new MutationObserver((mutations) => {
-		let lastArrived: HTMLElement | undefined
-
 		for (const mutation of mutations) {
 			for (const node of mutation.addedNodes) {
-				if (node instanceof HTMLElement) {
-					for (const [selector, resolve] of this.awaitedElements) {
-						const matches = node.matches(selector)
+				if (node instanceof Element) {
+					const arrivedElements = [node, ...node.querySelectorAll("*")]
 
-						if (matches) {
-							resolve(node)
-							this.awaitedElements.delete(selector)
+					for (const element of arrivedElements) {
+						if (!(element instanceof HTMLElement)) continue
+
+						for (const [selector, awaiters] of this.awaitedElements) {
+							if (element.matches(selector)) {
+								for (const awaiter of awaiters) awaiter.resolve(element)
+								this.awaitedElements.delete(selector)
+							}
 						}
-					}
 
-					for (const [selector, resolve] of this.onArrival) {
-						const matches = node.matches(selector)
-						const isSame = lastArrived && node === lastArrived
-
-						if (matches && !isSame) {
-							lastArrived = node
-							resolve(node)
+						for (const [selector, callbacks] of this.onArrival) {
+							if (element.matches(selector)) {
+								for (const callback of callbacks) callback(element)
+							}
 						}
 					}
 				}
@@ -48,21 +51,26 @@ export class Spawncamp {
 	public stop = () => {
 		this.observer.disconnect()
 		this._stopped = true
+
+		const error = new Error("Spawncamp is stopped")
+		for (const awaiters of this.awaitedElements.values()) {
+			for (const awaiter of awaiters) awaiter.reject(error)
+		}
+		this.awaitedElements.clear()
+		this.onArrival.clear()
 	}
 
 	/** Awaits an element to arrive in the DOM once or returns a matching existing element */
 	public once = <T = HTMLElement>(selector: Selector) => {
 		if (this._stopped) return Promise.reject(new Error("Spawncamp is stopped"))
 
-		if (this.awaitedElements.has(selector)) {
-			return Promise.resolve(this.awaitedElements.get(selector) as T)
-		}
-
 		const element = this.root.querySelector(selector)
 		if (element) return Promise.resolve(element as T)
 
-		const promise = new Promise<T>((resolve) => {
-			this.awaitedElements.set(selector, resolve as Resolver<HTMLElement>)
+		const promise = new Promise<T>((resolve, reject) => {
+			const awaiters = this.awaitedElements.get(selector) ?? new Set<Awaiter>()
+			awaiters.add({ resolve: resolve as Resolver<HTMLElement>, reject })
+			this.awaitedElements.set(selector, awaiters)
 		})
 
 		return promise
@@ -75,8 +83,14 @@ export class Spawncamp {
 	) => {
 		if (this._stopped) throw new Error("Spawncamp is stopped")
 
-		this.onArrival.set(selector, callback as Resolver<HTMLElement>)
+		const callbacks = this.onArrival.get(selector) ?? new Set<Resolver>()
+		callbacks.add(callback as Resolver<HTMLElement>)
+		this.onArrival.set(selector, callbacks)
 
-		return () => this.onArrival.delete(selector)
+		return () => {
+			const removed = callbacks.delete(callback as Resolver<HTMLElement>)
+			if (callbacks.size === 0) this.onArrival.delete(selector)
+			return removed
+		}
 	}
 }
