@@ -1,17 +1,27 @@
 {
-	"extends": "@sindresorhus/tsconfig",
 	"compilerOptions": {
-		// Enable latest features
-		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"composite": true,
 		"target": "ESNext",
-		"module": "ESNext",
 		"jsx": "react-jsx",
+		"lib": ["ESNext", "DOM"],
+		"moduleDetection": "force",
+		"module": "Preserve",
+
+		"moduleResolution": "bundler",
+		"types": [],
+		"allowImportingTsExtensions": true,
 		"allowJs": true,
 
-		// Bundler mode
-		"moduleResolution": "bundler",
-		"allowImportingTsExtensions": true,
+		"strict": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+
+		"noPropertyAccessFromIndexSignature": false,
+		"noUncheckedIndexedAccess": true,
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"noEmit": true,
 		"verbatimModuleSyntax": true,
-		"noEmit": true
+		"skipLibCheck": true
 	}
 }
