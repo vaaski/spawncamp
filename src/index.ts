@@ -123,10 +123,10 @@ export class Spawncamp {
  * //       ^? HTMLInputElement | undefined
  * ```
  */
-export function $<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K][]
-export function $<E extends HTMLElement>(selectors: string): E[]
-export function $(selector: string) {
-	return [...document.querySelectorAll(selector)]
+export function $<K extends keyof HTMLElementTagNameMap, R extends Element>(selector: K, root?: R): HTMLElementTagNameMap[K][]
+export function $<E extends HTMLElement, R extends Element>(selectors: string, root?: R): E[]
+export function $(selector: string, root = document) {
+	return [...root.querySelectorAll(selector)]
 }
 
 /**
@@ -152,10 +152,10 @@ export function $(selector: string) {
  * //       ^? HTMLInputElement
  * ```
  */
-export function $t<K extends keyof HTMLElementTagNameMap>(selector: K): [HTMLElementTagNameMap[K], ...HTMLElementTagNameMap[K][]]
-export function $t<E extends HTMLElement>(selectors: string): [E, ...E[]]
-export function $t(selector: string) {
-	const result = [...document.querySelectorAll(selector)]
+export function $t<K extends keyof HTMLElementTagNameMap, R extends Element>(selector: K, root?: R): [HTMLElementTagNameMap[K], ...HTMLElementTagNameMap[K][]]
+export function $t<E extends HTMLElement, R extends Element>(selectors: string, root?: R): [E, ...E[]]
+export function $t(selector: string, root = document) {
+	const result = [...root.querySelectorAll(selector)]
 	if (result.length === 0) throw new Error(`No element found for selector "${selector}"`)
 
 	return result
