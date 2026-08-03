@@ -1,6 +1,7 @@
 export type Selector = Parameters<typeof window.document.querySelector>[0]
 export type Resolver<T = HTMLElement> = (element: T) => void
 
+export * from "./create-element"
 export * from "./query-selector"
 
 type Awaiter = {
