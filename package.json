@@ -22,6 +22,7 @@
 	"scripts": {
 		"lint": "eslint .",
 		"build": "bun run build.ts",
+		"dev": "bun run build.ts -w",
 		"prepublishOnly": "bun run build.ts",
 		"test": "bun test"
 	},
